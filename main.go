@@ -10,18 +10,23 @@ import (
 )
 
 type config struct {
-	Port	int		`env:"PORT" envDefault:"8080"`
+	Port				int		`env:"PORT" envDefault:"8080"`
+	TrackingVariable	string	`env:"TRACKING_VARIABLE" envDefault:"trackingID"`
+	TrackingScript		string	`env:"TRACKING_SCRIPT" envDefault:"tracking.js"`
 }
 
-func Tracking(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	u1 := uuid.Must(uuid.NewV4())
-	w.Header().Set("content-type", "text/javascript")
-	w.Header().Set("last-modified", "Thu, 01 Jan 1970 00:00:00 GMT")
-	fmt.Fprintf(w, "var trackingID = \"%s\";\n", u1)
+func Tracking(cfg config) httprouter.Handle {
+	return func(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+		w.Header().Set("content-type", "text/javascript")
+		w.Header().Set("last-modified", "Thu, 01 Jan 1970 00:00:00 GMT")
+		fmt.Fprintf(w, "var %s = \"%s\";\n", fmt.Sprintf("%s", "string"), uuid.Must(uuid.NewV4()))
+	}
 }
 
-func Index(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	http.Redirect(w, req, "/tracking.js", 301)
+func Index(cfg config) httprouter.Handle {
+	return func(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+		http.Redirect(w, req, fmt.Sprintf("/%s", cfg.TrackingScript), 301)
+	}
 }
 
 func main() {
@@ -32,8 +37,8 @@ func main() {
 	}
 
     router := httprouter.New()
-	router.GET("/", Index)
-	router.GET("/tracking.js", Tracking)
+	router.GET("/", Index(cfg))
+	router.GET(fmt.Sprintf("/%s", cfg.TrackingScript), Tracking(cfg))
 
     log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), router))
 }
