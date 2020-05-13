@@ -16,8 +16,6 @@ type config struct {
 func Tracking(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	u1 := uuid.Must(uuid.NewV4())
 	w.Header().Set("content-type", "text/javascript")
-	// w.Header().Set("cache-control", "max-age=604800")
-	// w.Header().Set("expires", "Wed, 22 May 2019 15:32:21 GMT")
 	w.Header().Set("last-modified", "Thu, 01 Jan 1970 00:00:00 GMT")
 	fmt.Fprintf(w, "var trackingID = \"%s\";\n", u1)
 }
