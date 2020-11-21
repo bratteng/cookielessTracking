@@ -6,7 +6,7 @@ import (
 	"log"
 	"github.com/julienschmidt/httprouter"
 	"github.com/caarlos0/env"
-	"github.com/satori/go.uuid"
+	"github.com/matoous/go-nanoid"
 )
 
 type config struct {
@@ -19,7 +19,7 @@ func Tracking(cfg config) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		w.Header().Set("content-type", "text/javascript")
 		w.Header().Set("last-modified", "Thu, 01 Jan 1970 00:00:00 GMT")
-		fmt.Fprintf(w, "var %s = \"%s\";\n", fmt.Sprintf("%s", "string"), uuid.Must(uuid.NewV4()))
+		fmt.Fprintf(w, "var %s = \"%s\";\n", fmt.Sprintf("%s", cfg.TrackingVariable), gonanoid.Must())
 	}
 }
 
